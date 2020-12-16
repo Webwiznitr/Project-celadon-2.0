@@ -30,13 +30,16 @@ if (isset($_POST['name']) && isset($_POST['event']) && isset($_POST['date']) &&i
     imagettftext($image, 25, 0, 115, 640, $color_3, $font_3, $_POST['date']);
     //merge signature
     imagecopy($image, $targetImage, $dest_x , $dest_y, 0, 0, $targetWidth, $targetHeight);
-    $file = $_POST['name']."_".$_POST['event']."_".$_POST['date'];
-    imagejpeg($image, "../certificates/" . $file . ".jpg");
-    imagedestroy($image);
-    $_SESSION['certificate'] = "../certificates/" . $file . ".jpg";
-    if(isset($_SESSION['certificate'])){
-        echo(json_encode(array('status'=>'success','message' => $file)));
-    }
+    $file = $_POST['name']."_".$_POST['event'];
+    // imagejpeg($image, "../certificates/" . $file . ".jpg");
+    // imagedestroy($image);
+    // $_SESSION['certificate'] = "../certificates/" . $file . ".jpg";
+    ob_start(); // Let's start output buffering.
+    imagejpeg($image); //This will normally output the image, but because of ob_start(), it won't.
+    $contents = ob_get_contents(); //Instead, output above is saved to $contents
+    ob_end_clean(); //End the output buffer.
+    $base64 = base64_encode($contents);
+    echo(json_encode(array('status'=>'success','result' => $base64,'filename' => $file)));
 }
  
 
